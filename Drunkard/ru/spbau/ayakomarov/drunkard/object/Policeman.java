@@ -15,7 +15,9 @@ public class Policeman extends  ObjectMove {
     int goalX;
     int goalY;
     public boolean isHaveDrunkard = false;
-    public boolean inField = true;
+    public boolean inField = false;
+    private int countWait;
+    final private int limitWait = 15;
 
 
     Policeman(int x, int y, Field field1_, SectorPolice sectorPolice_) {
@@ -25,13 +27,14 @@ public class Policeman extends  ObjectMove {
         this.field = field1_;
         this.sectorPolice = sectorPolice_;
         this.moveToGoal = new MoveToGoal(field1_);
+        countWait = 0;
     }
 
-    public void giveInstructions( Stack<Integer> navigation_, int goalX_, int goalY_ ) {
+    public void giveInstructions( Stack<Integer> navigation, int goalX, int goalY ) {
 
-        this.navigation = navigation_;
-        this.goalX = goalX_;
-        this.goalY = goalY_;
+        this.navigation = navigation;
+        this.goalX = goalX;
+        this.goalY = goalY;
     }
 
     @Override
@@ -41,29 +44,42 @@ public class Policeman extends  ObjectMove {
             return;
         }
 
-
-        if( coordX == sectorPolice.coordX && coordY == sectorPolice.coordY &&
-                isHaveDrunkard == true) {
+        if( isBackHome() ) {
 
             isHaveDrunkard = false;
-            field.cells[coordX][coordY].object = null;
+            field.setObject(coordX, coordY, null);
             inField = false;
             sectorPolice.isHavePoliceman = true;
 
             return;
         }
 
-        if( navigation == null || navigation.isEmpty() ) {
+        if( navigation == null && inField) {
+            countWait++;
+            if(countWait <= limitWait) {
+                navigation = moveToGoal.getWay(coordX, coordY, goalX, goalY);
+                return;
+            }
+            isHaveDrunkard = true;
+            goalX = sectorPolice.coordX;
+            goalY = sectorPolice.coordY;
+            countWait = 0;
+            return;
+        }
+
+        if( navigation == null || navigation.isEmpty()) {
             return;
         }
 
         Integer directStep = navigation.pop();
-
         changeCell(directStep);
-
 
     }
 
+    private boolean isBackHome(){
+        return coordX == sectorPolice.coordX && coordY == sectorPolice.coordY &&
+                isHaveDrunkard == true;
+    }
 
     /////////////////////////////////////////////////
 
@@ -89,7 +105,7 @@ public class Policeman extends  ObjectMove {
                 (object.view() == 'Z' || object.view() == '&') &&
                  !isHaveDrunkard ) {
 
-            field.cells[goalX][goalY].object = null;
+            field.setObject(goalX, goalY, null);
 
             goalX = sectorPolice.coordX;
             goalY = sectorPolice.coordY;

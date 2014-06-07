@@ -1,6 +1,5 @@
 package ru.spbau.ayakomarov.drunkard.object;
 
-import ru.spbau.ayakomarov.drunkard.field.Cell;
 import ru.spbau.ayakomarov.drunkard.field.Field;
 import ru.spbau.ayakomarov.drunkard.moveAlgorithm.MoveToGoal;
 
@@ -35,9 +34,8 @@ public class Beggar extends  ObjectMove {
     public void doStep(){
 
         if( isRelax == true && ( count < 30 ||
-                (field.cells[receiverGlass.startX][receiverGlass.startY].object != null &&
-                 field.cells[receiverGlass.startX][receiverGlass.startY].object.view() != 'z'))) {
-
+                        ( field.cells[receiverGlass.startX][receiverGlass.startY].object != null &&
+                          field.getObject(receiverGlass.startX, receiverGlass.startY).view() != 'z'))) {
             count++;
             return;
         }
@@ -51,7 +49,7 @@ public class Beggar extends  ObjectMove {
 
         if( this.isHaveBottle == true && coordX == receiverGlass.startX && coordY == receiverGlass.startY ) {
 
-            field.cells[receiverGlass.startX][receiverGlass.startY].object = null;
+            field.setObject(receiverGlass.startX, receiverGlass.startY, null);
             isRelax = true;
             isHaveBottle = false;
             count = 0;
@@ -61,14 +59,12 @@ public class Beggar extends  ObjectMove {
         }
 
 
-        if( isBottle(coordX - 1, coordY) ) {             // North
-            getBottle(coordX - 1, coordY);
-        } else if( isBottle(coordX + 1, coordY) ) {      // South
-            getBottle(coordX + 1, coordY);
-        } else if( isBottle(coordX, coordY - 1) ) {      // West
-            getBottle(coordX, coordY - 1);
-        } else if( isBottle(coordX, coordY + 1) ) {      // East
-            getBottle(coordX, coordY + 1);
+        for(int direct =0; direct < field.countDirects; direct++){
+            int x = field.getNeighborX(coordX, coordY, direct);
+            int y = field.getNeighborY(coordX, coordY, direct);
+            if(isBottle(x,y)) {
+                getBottle(x,y);
+            }
         }
 
         if( navigation.isEmpty() ) {
@@ -86,7 +82,7 @@ public class Beggar extends  ObjectMove {
 
     private void getBottle(int x, int y) {
 
-        field.cells[x][y].object = null;
+        field.setObject(x, y, null);
         isHaveBottle = true;
         goalX = receiverGlass.startX;
         goalY = receiverGlass.startY;
@@ -95,8 +91,9 @@ public class Beggar extends  ObjectMove {
 
     private boolean isBottle(int x, int y) {
 
-        return (0 <= x && x < this.field.height) && (0 <= y && y < this.field.width) &&
-                this.field.cells[x][y].object != null && this.field.cells[x][y].object.view() == 'B';
+        return  field.isBoundaries(x, y)
+                && field.getObject(x, y) != null
+                && field.getObject(x, y).view() == 'B';
     }
 
     private void changeDirect() {
@@ -110,7 +107,7 @@ public class Beggar extends  ObjectMove {
         } else {
             goalY = 14;
         }
-        goalX = (goalX + 1) % field.width;
+        goalX = (goalX + 1) % field.height;
         navigation = moveToGoal.getWay(coordX,coordY, goalX, goalY);
     }
 

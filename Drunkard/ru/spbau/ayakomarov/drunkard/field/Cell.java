@@ -1,11 +1,11 @@
 package ru.spbau.ayakomarov.drunkard.field;
 
 
-import ru.spbau.ayakomarov.drunkard.object.IObjectInCell;
+import ru.spbau.ayakomarov.drunkard.object.ObjectInCell;
 
 public class Cell {
 
-    public IObjectInCell object;
+    public ObjectInCell object;
 
     Cell(){
         object = null;

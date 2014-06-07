@@ -23,25 +23,38 @@ public class Light extends ObjectInCell {
         field = field_;
     }
 
-    boolean haveDrunkard() {
+    boolean haveDrunkard(int x, int y, int depth) {
 
-        for(int i=-3; i<=3; i++) {
-         for (int j=-3; j <=3; j++) {
-            if(  /*StrictMath.abs(i) + StrictMath.abs(j) <= 3 &&*/
-                field.cells[coordX+i][coordY+j].object != null &&
-                (field.cells[coordX+i][coordY+j].object.view() == 'Z' ||
-                 field.cells[coordX+i][coordY+j].object.view() == '&') ) {
+        if(depth > 3) return false;
 
-                drunkardX = coordX + i;
-                drunkardY = coordY + j;
+        for(int direct=0; direct < field.countDirects; direct++) {
+            int nx = field.getNeighborX(x,y,direct);
+            int ny = field.getNeighborY(x, y, direct);
 
-                return true;
+            if( field.isBoundaries(nx,ny) ) {
+                if( isSleepDrunkard(nx, ny) ) {
+                    drunkardX = nx;
+                    drunkardY = ny;
+                    return true;
+                }
+                if( haveDrunkard(nx, ny, depth+1) ) {
+                    return true;
+                }
             }
-         }
         }
 
         return false;
     }
+
+    boolean haveDrunkard() {
+        return haveDrunkard(coordX, coordY, 0);
+    }
+
+    boolean isSleepDrunkard(int nx, int ny){
+        return field.getObject(nx, ny) != null &&
+                (field.getObject(nx, ny).view() == 'Z' || field.getObject(nx, ny).view() == '&');
+    }
+
 
     @Override
     public char view() {

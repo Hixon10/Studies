@@ -1,11 +1,11 @@
 package ru.spbau.ayakomarov.drunkard;
 
 
+import ru.spbau.ayakomarov.drunkard.field.HexagonalField;
 import ru.spbau.ayakomarov.drunkard.field.LiveContainer;
 import ru.spbau.ayakomarov.drunkard.field.Field;
+import ru.spbau.ayakomarov.drunkard.field.StandardField;
 import ru.spbau.ayakomarov.drunkard.object.*;
-
-import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -26,15 +26,17 @@ public class Main {
         final int sectorPoliceX = 3;
         final int sectorPoliceY= 14;
 
-        Field field = new Field(width, height);
-        field.cells[columnX][columnY].object = new Column();
-        Light light = new Light(lightX, lightY, field);
-        field.cells[lightX][lightY].object = light;
+        //Field field = new StandardField(width, height);
 
+        Field field = new HexagonalField(width, height);
         LiveContainer livecontainer = new LiveContainer();
 
+        field.setObject(columnX,columnY, new Column());
 
-        SectorPolice sectorPolice = new SectorPolice(sectorPoliceX, sectorPoliceY, field, livecontainer, light);
+        Light light = new Light(lightX, lightY, field);
+        field.setObject(lightX,lightY,light);
+
+        SectorPolice sectorPolice = new SectorPolice(field, livecontainer, light);
         Bar bar = new Bar(field, livecontainer);
         ReceiverGlass receiverGlass = new ReceiverGlass(field, livecontainer);
 
@@ -50,19 +52,7 @@ public class Main {
 
             System.out.flush();
 
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-
-                    if( field.cells[i][j].object != null ){
-                        char ch = field.cells[i][j].object.view();
-                        System.out.printf(" %c ", ch);
-                    } else {
-                        System.out.printf(" . ");
-                    }
-
-                }
-                System.out.printf("\n");
-            }
+            field.view();
 
             //System.out.printf("\nstep  %d   ", k);
         }

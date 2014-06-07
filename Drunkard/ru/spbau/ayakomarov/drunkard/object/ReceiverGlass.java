@@ -22,9 +22,9 @@ public class ReceiverGlass implements IObjectLive{
     @Override
     public void doStep() {
 
-        if( this.field.cells[startX][startY].object == null && isFieldFree ) {
+        if( field.getObject(startX, startY) == null && isFieldFree ) {
             Beggar beggar = new Beggar(startX, startY, this.field, this);
-            this.field.cells[startX][startY].object = beggar;
+            field.setObject(startX, startY, beggar);
             livecontainer.addObjectLive(beggar);
             isFieldFree = false;
         }

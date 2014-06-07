@@ -5,6 +5,6 @@ import ru.spbau.ayakomarov.drunkard.field.Field;
 public abstract class  ObjectInCell implements IObjectInCell{
 
     public Field field;
-    int coordX;
-    int coordY;
+    public int coordX;
+    public int coordY;
 }

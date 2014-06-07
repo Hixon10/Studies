@@ -6,41 +6,29 @@ import ru.spbau.ayakomarov.drunkard.field.Cell;
 
 public abstract class ObjectMove extends ObjectInCell implements IObjectMove , IObjectLive  {
 
-    protected boolean changeCell( Integer directStep ) {
+    protected boolean changeCell( int directStep ) {
 
-        Cell nowCell =  this.field.cells[this.coordX][this.coordY];
+        Cell nowCell =  field.getCell(coordX, coordY);
         int newX, newY;
-        if( directStep == 0) {          // North
-            newX = this.coordX - 1;
-            newY = this.coordY;
-        }
-        else if(directStep == 1) {      // South
-            newX = this.coordX + 1;
-            newY = this.coordY;
-        }
-        else if(directStep == 2) {      // West
-            newX = this.coordX;
-            newY = this.coordY - 1;
-        } else {                        // East
-            newX = this.coordX;
-            newY = this.coordY + 1;
-        }
-        if( (0 <= newX && newX < this.field.width) && (0 <= newY && newY < this.field.height) ) {
 
-            Cell newСell = this.field.cells[newX][newY];
+        Cell newCell = field.getNeighbor(this.coordX, this.coordY, directStep);
 
-            if ( newСell.object == null ) {
+        newX = field.getNeighborX(this.coordX, this.coordY, directStep);
+        newY = field.getNeighborY(this.coordX, this.coordY, directStep);
+
+        if( newCell != null ){
+            if ( newCell.object == null ) {
                 // we must go
                 nowCell.object = null;
 
                 this.coordX = newX;
                 this.coordY = newY;
-                newСell.object = this;
+                newCell.object = this;
 
                 return true;
 
             } else {
-                newСell.object.reactionBarrier(this);
+                newCell.object.reactionBarrier(this);
             }
         }
 

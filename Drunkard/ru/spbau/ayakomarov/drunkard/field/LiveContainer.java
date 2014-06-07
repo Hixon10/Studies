@@ -15,7 +15,7 @@ public class LiveContainer {
         objectsLive.addAll(bufObjectsLive);
         bufObjectsLive.clear();
 
-        for (int i=0; i < this.objectsLive.size(); ++i) {
+        for (int i=0; i < this.objectsLive.size(); i++) {
             this.objectsLive.get(i).doStep();
         }
     }

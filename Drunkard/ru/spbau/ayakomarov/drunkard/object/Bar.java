@@ -22,16 +22,20 @@ public class Bar implements IObjectLive{
     @Override
     public void doStep() {
 
-        if( this.field.cells[startX][startY].object == null && count >= 20) {
+        if( wayIsFree() && count >= 20) {
 
             Drunkard drunk = new Drunkard(startX, startY, this.field);
-            this.field.cells[startX][startY].object = drunk;
+            field.setObject(startX, startY, drunk);
             count = 0;
             livecontainer.addObjectLive(drunk);
 
         }
         count++;
 
+    }
+
+    private boolean wayIsFree(){
+        return field.getObject(startX, startY) == null;
     }
 
 }

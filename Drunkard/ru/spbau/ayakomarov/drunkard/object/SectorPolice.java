@@ -17,17 +17,17 @@ public class SectorPolice extends ObjectInCell implements IObjectLive{
     Light light;
 
 
-    public SectorPolice( int x, int y, Field field_, LiveContainer livecontainer_, Light light_){
+    public SectorPolice(  Field field_, LiveContainer livecontainer_, Light light_){
 
-        this.coordX = x;
-        this.coordY = y;
+        this.coordX = 3;
+        this.coordY = field_.width-1;
         this.field = field_;
         this.livecontainer = livecontainer_;
         light = light_;
 
         this.livecontainer.addObjectLive(this);
         this.moveToGoal = new MoveToGoal(field);
-        policeman = new Policeman(x, y, this.field, this);
+        policeman = new Policeman(this.coordX, this.coordY, this.field, this);
         livecontainer.addObjectLive(policeman);
 
     }
@@ -42,25 +42,24 @@ public class SectorPolice extends ObjectInCell implements IObjectLive{
         object.meetBarrier(this);
     }
 
-
+    private boolean isHaveDrunkard(){
+        return isHavePoliceman && light.haveDrunkard() &&
+                field.getObject(coordX, coordY) == null;
+    }
     @Override
     public void doStep() {
 
-        if( isHavePoliceman && light.haveDrunkard() &&
-                field.cells[coordX][coordY].object == null ) {
+        if( isHaveDrunkard() ) {
 
             int drunkardX = light.getDrunkardX();
             int drunkardY = light.getDrunkardY();
 
             Stack<Integer> navigation = moveToGoal.getWay(coordX, coordY, drunkardX, light.drunkardY);
-
-
-
             policeman.giveInstructions(navigation, drunkardX, drunkardY);
-            this.field.cells[coordX][coordY].object = policeman;
+
+            field.setObject(coordX, coordY, policeman);
             isHavePoliceman = false;
             policeman.inField = true;
-
         }
     }
 

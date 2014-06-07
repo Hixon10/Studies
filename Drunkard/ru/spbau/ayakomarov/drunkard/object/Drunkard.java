@@ -32,11 +32,9 @@ public class Drunkard extends  ObjectMove {
             return;
         }
 
+        Cell nowCell = field.getCell(coordX,coordY);
 
-
-        Cell nowCell = this.field.cells[this.coordX][this.coordY];
-
-        int directStep = random.nextInt(4);
+        int directStep = random.nextInt(field.countDirects);
 
         if( changeCell(directStep) ) {
 

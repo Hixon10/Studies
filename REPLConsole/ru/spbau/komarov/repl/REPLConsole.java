@@ -31,7 +31,7 @@ public class REPLConsole {
     private final Stack<UndoableEdit> editBlockBuf = new Stack<>();
 
     private final Manager manager = new Manager();
-    private final redactTextListener redactTextListener = new redactTextListener();
+    private final RedactTextListener redactTextListener = new RedactTextListener();
     private final ListenerForSaveEdits listenerForSaveEdits = new ListenerForSaveEdits();
 
 
@@ -100,7 +100,7 @@ public class REPLConsole {
         }
     }
 
-    private class redactTextListener implements DocumentListener {
+    private class RedactTextListener implements DocumentListener {
         @Override
         public void insertUpdate(DocumentEvent e) {
             redactText(e);

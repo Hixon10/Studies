@@ -28,10 +28,11 @@ object ShowingScheme {
 
   def getSchemeInfo(scheme: Scheme) : SchemeInfo = scheme match {
 
-    case Res(_) => {
-      var si = new SchemeInfo(List("    =====    ",
-                                   "---|     |---",
-                                   "    =====    "))
+    case Res(v) => {
+      val str = v toString()
+      var si = new SchemeInfo(List("    "+ "="*(str.length+4) + "    ",
+                                   "---|  " + str + "  |---",
+                                   "    "+ "="*(str.length+4) + "    "))
       si.row = 1
       si
     }
@@ -142,13 +143,13 @@ object ShowingScheme {
       } else {
         for(i <- 0 to downH1-1) {
           count += 1
-          ansList :+= si1.list(si1.row + count) + "    " + si2.list(si2.row +count)
+          ansList :+= si1.list(si1.row + count) + "    " + si2.list(si2.row + count)
         }
       }
 
 
       var si = new SchemeInfo(ansList)
-      si.row = si1.row
+      si.row = if (si1.row > si2.row) si1.row else si2.row
       si
     }
 

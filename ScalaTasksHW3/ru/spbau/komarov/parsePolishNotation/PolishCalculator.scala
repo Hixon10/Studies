@@ -5,6 +5,9 @@ import scala.util.parsing.combinator._
 
 class PolishCalculator extends JavaTokenParsers {
 
+
+  var stack : List[Node] = List[Node]()
+
   def calculate(expression: String) = calculateNode(parseAll(expr, expression).get)
 
   def calculateNode(node:Node) : Float = node match {
@@ -22,11 +25,31 @@ class PolishCalculator extends JavaTokenParsers {
   case class Div(x:Node, y:Node) extends Node
   case class Num(x:Float) extends Node
 
-  def expr:   Parser[Node] = num ^^{case x => new Num(x)} | (operator ~ expr ~ expr)^^{
-    case op ~ ex1 ~ ex2 => op(ex1, ex2)
+  def expr:   Parser[Node] = rep(numbers ~ operator) ^^ {
+    case blocks =>
+      blocks.foreach(block =>
+        block match {
+          case blocksNumbers ~ op => {
+            blocksNumbers.foreach( n =>
+              stack = Num(n) :: stack
+            )
+            stack match {
+              case x :: y :: xs => stack = op(y,x) :: xs
+              case _ => throw new scala.MatchError("bad expression")
+            }
+          }
+        }
+      )
+      stack match {
+        case x :: _ => x
+        case _ => throw new scala.MatchError("bad expression")
+      }
   }
 
+  def numbers: Parser[List[Float]] = rep(num)
+
   def num: Parser[Float] = floatingPointNumber ^^ { _.toFloat }
+
   def operator: Parser[(Node, Node) => Node] = ("+" | "-" | "*" | "/") ^^ {
     case "+" => add
     case "-" => sub
@@ -44,8 +67,7 @@ class PolishCalculator extends JavaTokenParsers {
 object Main {
   def main(args: Array[String]) {
     val pc = new PolishCalculator
-    println(pc.calculate("+ - *  4 6 2 + 5 7"))
-    println(pc.calculate("+ - * / 1 2 3 4 5"))
-    println(pc.calculate(" * 10 / 14 + 3 4"))
+    println(pc.calculate("5 1 2 + 4 * + 3 -")) // 5 + ((1 + 2) × 4) − 3 = 14
+    println(pc.calculate("1 2 3 4 5 - - - -")) // (1 - (2 - (3 - (4 - 5)))) = 3
   }
 }

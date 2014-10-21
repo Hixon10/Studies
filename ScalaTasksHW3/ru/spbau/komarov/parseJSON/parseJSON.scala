@@ -1,27 +1,37 @@
 package ru.spbau.komarov.parseJSON
 
 
-class parseJSON(str: String) {
+class ParseJSON(str: String) {
 
-  val parcedJSON = scala.util.parsing.json.JSON.parseFull(str)
+  val parsedJSON = scala.util.parsing.json.JSON.parseFull(str)
 
 }
 
 //test
 object Main {
   def main(args: Array[String]): Unit = {
-    val jsonPushkin = """{
-      "name": "Alex Pushkin",
-      "age": 215,
-      "books": ["Ruslan i Lyudmila", " Medny vsadnik", "Pikovaya dama"]
-}"""
+    val jsonString = """{
+                           "firstName": "Иван",
+                           "lastName": "Иванов",
+                           "address": {
+                               "streetAddress": "Московское ш., 101, кв.101",
+                               "city": "Ленинград",
+                               "postalCode": 101101
+                           },
+                           "phoneNumbers": [
+                               "812 123-1234",
+                               "916 123-4567"
+                           ]
+                        }"""
 
-    val obj = new parseJSON(jsonPushkin);
+    val parsedJSON = new ParseJSON(jsonString).parsedJSON;
 
-    obj.parcedJSON match {
-      case Some(m: Map[String, Any]) => m("name") match {
+    val name = parsedJSON match {
+      case Some(m: Map[String, Any]) => m("firstName") match {
         case s: String => s
       }
     }
+
+    print(name)
   }
 }

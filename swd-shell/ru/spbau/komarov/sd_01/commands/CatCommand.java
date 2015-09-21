@@ -1,9 +1,6 @@
 package ru.spbau.komarov.sd_01.commands;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class CatCommand implements Command {
 
@@ -15,14 +12,16 @@ public class CatCommand implements Command {
     }
 
     @Override
-    public void execute(String filename) {
-        if (filename == null) {
-            System.out.println("not filename");
-            return;
-        }
+    public void execute(String filename, InputStream in, PrintStream out) {
+//        if (filename == null) {
+//            System.out.println("not filename");
+//            return;
+//        }
 
         try {
-            try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            try (BufferedReader reader = new BufferedReader(filename != null ?
+                    new FileReader(filename) :
+                    new InputStreamReader(in, "UTF-8"))) {
                 String line = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 String ls = System.getProperty("line.separator");
@@ -31,7 +30,7 @@ public class CatCommand implements Command {
                     stringBuilder.append( line );
                     stringBuilder.append( ls );
                 }
-                System.out.println(stringBuilder.toString());
+                out.print(stringBuilder.toString());
 
             } catch (FileNotFoundException e) {
                 System.out.println("No such file or directory");

@@ -1,11 +1,8 @@
 package ru.spbau.komarov.sd_01;
 
 import ru.spbau.komarov.sd_01.commands.Command;
-import ru.spbau.komarov.sd_01.commands.MetaCommand;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,12 +14,16 @@ public class Shell {
         return new Shell().new Builder();
     }
 
+    public Shell() {
+        commandMap.put("man", new ManCommand());
+    }
+
     public void start() {
         try(BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 
             while(true) {
                 System.out.print(">>> ");
-                executeLine(br.readLine());
+                executeLineWithPipes(br.readLine());
             }
 
         } catch (IOException e) {
@@ -31,7 +32,29 @@ public class Shell {
         }
     }
 
-    private void executeLine(String line) {
+    private void executeLineWithPipes(String line) {
+        String[] commands = line.split("\\|");
+        InputStream in = System.in;
+        PipedInputStream nextIn = null;
+        PrintStream out = null;
+        for (int i = 0; i < commands.length; i++) {
+            if (out != null) out.close();
+            if (i == commands.length - 1) {
+                out = System.out;
+            } else {
+                nextIn = new PipedInputStream();
+                try {
+                    out = new PrintStream(new PipedOutputStream(nextIn));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            executeCommandLine(commands[i].trim(), in, out);
+            in = nextIn;
+        }
+    }
+
+    private void executeCommandLine(String line, InputStream in, PrintStream out) {
         String[] words = line.split("\\s+");
         if(words.length == 0)
             return;
@@ -47,7 +70,7 @@ public class Shell {
         if(words.length > 1)
             arg = words[1];
 
-        command.execute(arg);
+        command.execute(arg, in, out);
     }
 
     public class Builder {
@@ -57,14 +80,35 @@ public class Shell {
             return this;
         }
 
-        public Builder addMetaCommand(String commandName, MetaCommand command) {
-            commandMap.put(commandName, command);
-            command.setCommandMap(commandMap);
-            return this;
-        }
-
         public Shell build() {
             return Shell.this;
+        }
+    }
+
+    private class ManCommand implements Command {
+
+        private String info = "Print information about command";
+
+        @Override
+        public String getInfo() {
+            return info;
+        }
+
+        @Override
+        public void execute(String arg, InputStream in, PrintStream out) {
+            if (arg == null) {
+                System.out.println("not command name");
+                return;
+            }
+
+            if(commandMap != null) {
+                Command command = commandMap.get(arg);
+                if(command == null || command.getInfo() == null)
+                    System.out.println("No manual entry for " + arg);
+                else {
+                    out.println(command.getInfo());
+                }
+            }
         }
     }
 }

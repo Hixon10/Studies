@@ -67,8 +67,11 @@ public class Shell {
         }
 
         String arg = null;
-        if(words.length > 1)
+        if(words.length > 1 && !words[0].equals("grep")) {
             arg = words[1];
+        } else if (words[0].equals("grep")) {
+            arg = line;
+        }
 
         command.execute(arg, in, out);
     }

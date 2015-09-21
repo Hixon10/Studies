@@ -8,6 +8,7 @@ public class Main {
                 .addCommand("exit", new ExitCommand())
                 .addCommand("pwd", new PwdCommand())
                 .addCommand("wc", new WcCommand())
+                .addCommand("grep", new GrepCommand())
                 .build().start();
     }
 }
